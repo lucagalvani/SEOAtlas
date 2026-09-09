@@ -1,13 +1,13 @@
 # SEOAtlas
 
-[Claude Code](https://claude.com/claude-code) skills for SEO-led content teams — planning what to write, then writing it.
-
-Two skills live here:
+[Claude Code](https://claude.com/claude-code) skills for SEO-led technical content — deciding what to write, then writing it without it reading like AI wrote it.
 
 | Skill | What it does |
 | --- | --- |
 | [`seo-cluster-planner`](skills/seo-cluster-planner/) | Turns a raw keyword list into a hub-and-spoke content plan, or finds high-intent buyer queries nobody has answered yet |
-| [`case-study-writer`](skills/case-study-writer/) | Writes a publication-ready B2B customer case study as a clean HTML artifact, from source docs and drafts |
+| [`seo-technical-writer`](skills/seo-technical-writer/) | Drafts and edits long-form developer content against a strict anti-AI-slop editorial standard |
+
+They're built to hand off to each other: the planner produces a row (target keyword, intent, pillar or support role, cluster), and the writer drafts against it — the cluster supplies the internal links.
 
 ## seo-cluster-planner
 
@@ -27,16 +27,30 @@ skills/seo-cluster-planner/
   scripts/build_plan_xlsx.py          — builds the 3-tab XLSX from a JSON plan (validates as it writes)
 ```
 
-## case-study-writer
+## seo-technical-writer
 
-Give it the source material — PDFs, a Google Doc, a rough draft, interview notes — and it produces a case study as an HTML artifact against a fixed 12-section structure: meta line, title, lede, four-metric stats band, situation, challenge, what the customer changed, business impact, sourced quote, what's next. Two sections covering adversarial/security testing are optional and only appear when the story calls for them.
+Writes for practitioners — engineers, platform and ML teams — and holds the draft to an editorial standard rather than a word count. The skill body carries the role, the core principles, and the non-negotiable tone rules; twelve reference files carry the detail, loaded only when a task needs them.
 
-The editorial rules are the point. It reconciles every figure in a draft against the sources before writing, refuses to fabricate a quote (a missing quote beats a placeholder one), frames vulnerability testing as a standard the product was held to rather than gaps that were found, and holds the whole document to one voice.
+The anti-slop machinery is the point. A banned-words list for the first pass, structural anti-patterns for outlining, code-sample standards, a 51-item editing checklist, and a human-voice pass that runs last on every draft with no exceptions. On-page SEO and GEO formatting live in their own file, so a piece aimed at organic search gets its title and outline planned against them before drafting starts.
 
 ```
-skills/case-study-writer/
-  SKILL.md                            — structure, editorial rules, and output CSS
+skills/seo-technical-writer/
+  SKILL.md                              — role, principles, tone rules, output defaults
+  references/01-banned-words.md         — delete-on-sight words and phrases
+  references/02-structural-artifacts.md — structural and formatting anti-patterns
+  references/03-tone-and-voice.md       — voice, hedging, sentence-level fixes
+  references/04-dev-code.md             — code example standards
+  references/05-dev-content.md          — structure, depth, audience calibration
+  references/06-editing-checklist.md    — the 51-item editing pass
+  references/07-source-material.md      — extracting from decks, papers, research
+  references/08-output-format.md        — required markdown structure and metadata
+  references/09-seo.md                  — keyword placement, headings, GEO, on-page checklist
+  references/10-human-voice-pass.md     — the final de-slop rewrite, every draft
+  references/11-product-context.md      — the 95/5 product-mention rule (template — fill in once)
+  references/12-companion-skills.md     — which neighbouring skill fires, and where it hands off
 ```
+
+`11-product-context.md` ships as a template. Fill in its three tables once for the product you write about — what it is, the claims its docs support, and the canonical URL map — and the plug rules, banned overclaims, and link placement rules apply as written.
 
 ## Install
 
@@ -50,7 +64,7 @@ cp -r SEOAtlas/skills/* ~/.claude/skills/
 Or just one of them:
 
 ```bash
-cp -r SEOAtlas/skills/seo-cluster-planner ~/.claude/skills/
+cp -r SEOAtlas/skills/seo-technical-writer ~/.claude/skills/
 ```
 
 `seo-cluster-planner`'s `build_plan_xlsx.py` needs `openpyxl`:
@@ -61,7 +75,7 @@ pip install openpyxl
 
 Restart Claude Code, or start a new session, so it picks up the new skills.
 
-> **Upgrading from an earlier clone?** The skills used to sit at the repo root, so the old install copied everything into `~/.claude/skills/seo-cluster-planner/`. That still works — nothing about the skill changed — but the paths above are the current ones.
+> **Upgrading from an earlier clone?** `seo-cluster-planner` used to sit at the repo root, so the old install copied everything into `~/.claude/skills/seo-cluster-planner/`. That still works — nothing about the skill itself changed — but the paths above are the current ones.
 
 ## Use
 
@@ -77,13 +91,17 @@ for the AEO mode:
 find the buyer-intent queries we're not covering compared to [competitor]
 ```
 
-or, with source docs attached:
+then, with a plan row or a brief in hand:
 
 ```
-write a case study from these
+write the pillar post for [keyword]
 ```
 
-Each skill asks for the context it needs up front — the ICP for a plan, the source reconciliation for a case study — then runs the full workflow.
+and on anything already drafted, by you or by a model:
+
+```
+edit this draft — full checklist, then the human voice pass
+```
 
 ## License
 
